@@ -1,0 +1,66 @@
+body {
+  font-family: 'montserrat', sans-serif;
+    font-size: 100%;
+}
+
+.card {
+  text-align: center;
+  box-shadow: 10px 10px 5px #888888;
+  border-radius: 0px;
+}
+
+
+.card-title {
+  padding: .25em;
+}
+
+img {
+  border: solid .125em;
+  border-color: #7B7E7F;
+  width: 3em;
+
+}
+
+#logo {
+  width: 15%
+}
+
+td {
+  vertical-align: middle;
+  border:  solid top .125em ;
+  padding: .125em;
+}
+
+#results {
+  text-align: center;
+}
+
+.hidn {
+  display: none;
+  transition: all 0.4s;
+}
+
+
+.btn {
+  cursor: pointer;
+  transition: all 0.4s;
+}
+
+a {
+  transition: all 0.4s;
+  cursor: pointer;
+}
+
+table {
+       box-shadow: 10px 10px 5px #888888;
+    width: 80%;
+}
+
+#srch {
+  padding: 1em;
+  margin: .5em;
+}
+
+.table-responsive, .btns {
+  padding: 1em;
+}

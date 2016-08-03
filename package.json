@@ -1,0 +1,20 @@
+{
+  "name": "twitch-viewer",
+  "version": "1.0.0",
+  "description": "A Pen created at CodePen.io. You can find this one at http://codepen.io/galliani/pen/PNBBjV.",
+  "main": "new-index.js",
+  "dependencies": {
+    "node": "0.0.0",
+    "react": "^15.3.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "twitch-viewer.git"
+  }
+}

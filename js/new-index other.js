@@ -26,44 +26,52 @@ var APICaller = React.createClass ({
                 streamers: streamerArray       
             })
         }.bind(this))
+    },   
+    handleChange: function(event){
+        this.setState({text: event.target.value});
+    },
+    handleSubmit: function(event){
+        event.preventDefault();
+        this.callApi(this.state.text)
     },
     getInitialState: function() {
         streamers.forEach(this.callApi)    
         return {   
-        streamers: []
+        streamers: [], 
+        text: ""
         }
         },
     render: function() {
         console.log(1, this.state.streamers);
         return (
+            <div >
             <Content streamers = {this.state.streamers} />
+            <AddStreamerForm onChange = {this.handleChange} onSubmit = {this.handleSubmit} text = {this.state.text} />
+            </div>
         )
     }
 
 })
 
-
-var Streamer = React.createClass ({
-    getInitialState: function() {
+var Content = React.createClass({
+    getInitialState: function () {
         return {
-            username: this.props.user.username,
-            url: this.props.user.url,
-            pic: this.props.user.pic, 
-            stream: this.props.user.stream ? this.props.user.stream.game : "Not online",
-            bio: this.props.user.bio
-    }
+            text: "",
+            streamers: this.props.streamers
+            }
     },
+    componentWillReceiveProps: function(nextProps){
+        this.setState({
+            streamers: nextProps.streamers
+        })
+    }, 
     render: function(){
-        return(
-            <tr>
-            <td><img src = {this.state.pic}/><a href =  {this.state.url}>{this.state.username}</a></td>
-            <td>{this.state.bio}</td>
-            <td>{this.state.stream}</td>
-            </tr>       
-            )
+        return (
+            
+            <StreamList data = {this.state.streamers}/>
+        )
     }
-}
-)
+})
 
 var StreamList = React.createClass ({
     getInitialState: function(){
@@ -103,60 +111,55 @@ var StreamList = React.createClass ({
         {StreamerTags}
         </tbody>
         </table>  
-        <AddStreamerForm />
         </div>
         )
     }
 })
 
-(function() {
-window.AddStreamerForm = React.createClass ({
+
+var Streamer = React.createClass ({
+    getInitialState: function() {
+        return {
+            username: this.props.user.username,
+            url: this.props.user.url,
+            pic: this.props.user.pic, 
+            stream: this.props.user.stream ? this.props.user.stream.game : "Not online",
+            bio: this.props.user.bio
+    }
+    },
+    render: function(){
+        return(
+            <tr>
+            <td><img src = {this.state.pic}/><a href =  {this.state.url}>{this.state.username}</a></td>
+            <td>{this.state.bio}</td>
+            <td>{this.state.stream}</td>
+            </tr>       
+            )
+    }
+}
+)
+
+
+
+var AddStreamerForm = React.createClass ({
+    getInitialState: function() {
+        return {
+            text: this.props.text
+        }
+    },
     render: function(){
         return (
-            <form className = "addForm" >
-            <input type = "text" onChange = {this.handleChange} placeholder = "Search and add a streamer" />
+            <form className = "addForm" onChange = {this.props.onChange} onSubmit = {this.props.onSubmit} >
+            <input type = "text" placeholder = "Search and add a streamer" />
             <input type = "submit" value = "Go!" />
             </form>
         )
     }
 })
-})();
 
-var Content = React.createClass({
-    getInitialState: function () {
-        return {
-            text: "",
-            streamers: this.props.streamers
-            }
-    },
-    componentWillReceiveProps: function(nextProps){
-        this.setState({
-                text: "",
-            streamers: nextProps.streamers
-        })
-    }, 
-    handleChange: function(event){
-        this.setState({text: event.target.value});
-    },
-    handleSubmit: function(event){
-        event.preventDefault();
-        var streamArray = this.state.streamers;
-        streamArray.push(this.state.text);
-        this.setState({
-            streamers: streamArray
-        })
-    },
-    render: function(){
-        return (
-            <div onChange = {this.handleChange} onSubmit = {this.handleSubmit}>
-            <StreamList data = {this.state.streamers} onSubmit = {this.handleSubmit}/>
-            </div>
-        )
-    }
-})
+
 
 ReactDOM.render( 
-
     <APICaller />,
 document.getElementById("content")
 );

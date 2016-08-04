@@ -1,18 +1,44 @@
 var streamers = ["freecodecamp", "storbeck", "terakilobyte", "habathcx", "brunofin", "comster44", "RobotCaleb", "thomasballinger", "beohoff", "LIRIK", "mitchflowerpower"]
 
+var streamerData = []
+
+
+
+
+
 var APICaller = React.createClass ({
-    getInitialState: function() {
-        
-        $.get(url).then(function(result){
+    callApi: function(username){
+        var d1 = $.get("https://api.twitch.tv/kraken/streams/"+username)
+        var d2 = $.get("https://api.twitch.tv/kraken/users/"+username)    
+        $.when(d1, d2).done(function(streamsResponse, usersResponse){
+            var streams = streamsResponse[0];
+            var users = usersResponse[0]
+            streamerData = {
+                stream: streams.stream,
+                url: "http://www.twitch.tv/"+username, //Change this
+                pic: users.logo ? users.logo : "http://www.tpreview.co.uk/wp-content/uploads/2013/11/twitch-logo-300x300.png",
+                bio: users.bio,
+                username: users.name
+            }
+            var streamerArray = this.state.streamers;
+            streamerArray.push(streamerData);
             this.setState({
-                stream: result.stream ? result.stream.game : "Not online.",
-                url: "http://www.twitch.tv/" + this.props.user 
-        })
-    }.bind(this))
+                streamers: streamerArray       
+            })
+        }.bind(this))
+    },
+    getInitialState: function() {
+        streamers.forEach(this.callApi)    
         return {   
         streamers: []
         }
-    },
+        },
+    render: function() {
+        console.log(1, this.state.streamers);
+        return (
+            <Content streamers = {this.state.streamers} />
+        )
+    }
 
 })
 
@@ -20,47 +46,12 @@ var APICaller = React.createClass ({
 var Streamer = React.createClass ({
     getInitialState: function() {
         return {
-            username: "",
-            url: "",
-            pic: null, 
-            stream: ""
+            username: this.props.user.username,
+            url: this.props.user.url,
+            pic: this.props.user.pic, 
+            stream: this.props.user.stream ? this.props.user.stream.game : "Not online",
+            bio: this.props.user.bio
     }
-    },
-    componentDidMount: function(){
-        this.loadStuff();
-        this.loadMoreStuff();
-    },
-    loadStuff: function(){
-        var url = "https://api.twitch.tv/kraken/streams/" + this.props.user
-        this.serverRequest = $.get(url).then(function(result){
-            this.setState({
-                stream: result.stream ? result.stream.game : "Not online.",
-                url: "http://www.twitch.tv/" + this.props.user 
-        })
-    }.bind(this))
-        },
-    loadMoreStuff: function(){
-        var usersUrl = "https://api.twitch.tv/kraken/users/" + this.props.user;
-        this.otherServerRequest = $.get(usersUrl).done(function(result2){
-            this.setState({
-                pic: result2.logo ? result2.logo : "http://www.tpreview.co.uk/wp-content/uploads/2013/11/twitch-logo-300x300.png",
-                bio: result2.bio,
-                username: result2.name
-            })
-        }.bind(this))
-        .fail(function(){
-                    this.setState({
-                        username: this.props.user,
-                        pic: "http://www.tpreview.co.uk/wp-content/uploads/2013/11/twitch-logo-300x300.png",
-                        stream: "User doesn't exist",
-                        bio: ""
-                    })
-                    }.bind(this))
-        
-    },
-    componentWillUnmount: function() {
-        this.otherServerRequest.abort();
-        this.serverRequest.abort();
     },
     render: function(){
         return(
@@ -80,18 +71,24 @@ var StreamList = React.createClass ({
            data: this.props.data
         }   
     },
+    componentWillReceiveProps: function(nextProps){
+        this.setState({
+            data: nextProps.data
+        })
+    }, 
     componentDidMount: function() {
         this.setState({
             added: this.props.added
         })
     },
     render: function(){
-        var StreamerTags = this.props.data.map(function(user, i){
+        var StreamerTags = this.state.data.map(function(user, i){
             return React.createElement(Streamer, 
                 {user: user,
                  key: i}
             )
         })
+
     return (
         <div>
         <table>
@@ -103,7 +100,7 @@ var StreamList = React.createClass ({
         </tr>
         </thead>
         <tbody>          
-          {StreamerTags}
+        {StreamerTags}
         </tbody>
         </table>  
         <AddStreamerForm />
@@ -112,7 +109,8 @@ var StreamList = React.createClass ({
     }
 })
 
-var AddStreamerForm = React.createClass ({
+(function() {
+window.AddStreamerForm = React.createClass ({
     render: function(){
         return (
             <form className = "addForm" >
@@ -122,6 +120,7 @@ var AddStreamerForm = React.createClass ({
         )
     }
 })
+})();
 
 var Content = React.createClass({
     getInitialState: function () {
@@ -130,6 +129,12 @@ var Content = React.createClass({
             streamers: this.props.streamers
             }
     },
+    componentWillReceiveProps: function(nextProps){
+        this.setState({
+                text: "",
+            streamers: nextProps.streamers
+        })
+    }, 
     handleChange: function(event){
         this.setState({text: event.target.value});
     },
@@ -144,14 +149,15 @@ var Content = React.createClass({
     render: function(){
         return (
             <div onChange = {this.handleChange} onSubmit = {this.handleSubmit}>
-            <StreamList data = {streamers} onSubmit = {this.handleSubmit}/>
+            <StreamList data = {this.state.streamers} onSubmit = {this.handleSubmit}/>
             </div>
         )
     }
 })
 
 ReactDOM.render( 
-    <APICaller streamers = {streamers} />,
+
+    <APICaller />,
 document.getElementById("content")
 );
 

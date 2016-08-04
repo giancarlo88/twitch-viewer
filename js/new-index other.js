@@ -2,10 +2,6 @@ var streamers = ["freecodecamp", "storbeck", "terakilobyte", "habathcx", "brunof
 
 var streamerData = []
 
-
-
-
-
 var APICaller = React.createClass ({
     callApi: function(username){
         var d1 = $.get("https://api.twitch.tv/kraken/streams/"+username)
@@ -42,8 +38,7 @@ var APICaller = React.createClass ({
         }
         },
     render: function() {
-        console.log(1, this.state.streamers);
-        return (
+                return (
             <div >
             <Content streamers = {this.state.streamers} />
             <AddStreamerForm onChange = {this.handleChange} onSubmit = {this.handleSubmit} text = {this.state.text} />
@@ -98,13 +93,13 @@ var StreamList = React.createClass ({
         })
 
     return (
-        <div>
-        <table>
+        <div className = "container">
+        <table className = "streamerTable">
         <thead>
         <tr>
-        <th>User</th>
-        <th>Bio</th>
-        <th>Status</th> 
+        <th className = "user" >User</th>
+        <th className = "bio" >Bio</th>
+        <th className = "status" >Status</th> 
         </tr>
         </thead>
         <tbody>          
@@ -115,31 +110,6 @@ var StreamList = React.createClass ({
         )
     }
 })
-
-
-var Streamer = React.createClass ({
-    getInitialState: function() {
-        return {
-            username: this.props.user.username,
-            url: this.props.user.url,
-            pic: this.props.user.pic, 
-            stream: this.props.user.stream ? this.props.user.stream.game : "Not online",
-            bio: this.props.user.bio
-    }
-    },
-    render: function(){
-        return(
-            <tr>
-            <td><img src = {this.state.pic}/><a href =  {this.state.url}>{this.state.username}</a></td>
-            <td>{this.state.bio}</td>
-            <td>{this.state.stream}</td>
-            </tr>       
-            )
-    }
-}
-)
-
-
 
 var AddStreamerForm = React.createClass ({
     getInitialState: function() {
@@ -158,6 +128,27 @@ var AddStreamerForm = React.createClass ({
 })
 
 
+var Streamer = React.createClass ({
+    getInitialState: function() {
+        return {
+            username: this.props.user.username,
+            url: this.props.user.url,
+            pic: this.props.user.pic, 
+            stream: this.props.user.stream ? this.props.user.stream.game : "Not online",
+            bio: this.props.user.bio
+    }
+    },
+    render: function(){
+        return(
+            <tr>
+            <td ><div className = "username"><img src = {this.state.pic}/><a href =  {this.state.url}>{this.state.username}</a></div></td>
+            <td>{this.state.bio}</td>
+            <td>{this.state.stream}</td>
+            </tr>       
+            )
+    }
+}
+)
 
 ReactDOM.render( 
     <APICaller />,

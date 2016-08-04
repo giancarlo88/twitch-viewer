@@ -4,8 +4,11 @@
   "description": "A Pen created at CodePen.io. You can find this one at http://codepen.io/galliani/pen/PNBBjV.",
   "main": "new-index.js",
   "dependencies": {
+    "gulp-sass": "^2.3.2",
     "node": "0.0.0",
-    "react": "^15.3.0"
+    "react": "^15.3.0",
+    "sass-lint": "^1.8.2",
+    "server": "0.0.3"
   },
   "devDependencies": {},
   "scripts": {

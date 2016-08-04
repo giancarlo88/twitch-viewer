@@ -1,0 +1,70 @@
+$light-color: #f7f7f7;
+$text-color: #8f91a2;
+$main-color: #6341a5;
+$hilight1: #e1daed;
+$hilight2: #d6c9ed;
+
+
+
+
+
+body {
+  justify-content: center;
+  background: $main-color;
+  color: $text-color;
+  display: flex;
+  font-family: 'montserrat', sans-serif;
+
+  a {
+    border-bottom: 2px solid transparent;
+    color: $main-color;
+    cursor: pointer;
+    text-decoration: none;
+    transition: .2s ease;
+
+    &:hover {
+      @extend a;
+      border-bottom: 2px solid $main-color;
+  }
+  }
+
+  img {
+    border: solid 2px;
+    border-color: $main-color;
+    width: 3em;
+  }
+}
+
+table {
+  border-collapse: collapse;
+  min-height: 50vh;
+  width: 60vw;
+
+
+  th {
+    background: $light-color;
+    font-size: 24px;
+
+    .user {
+      width: 15%;
+    }
+  }
+
+}
+  tr {
+    font-size: 16px;
+
+    &:nth-child(odd) {
+      background: $hilight1;
+    };
+
+    &:nth-child(even) {
+      background: $hilight2;
+  }
+}
+.username {
+  display: flex;
+  align-items: center;
+}
+
+

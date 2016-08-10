@@ -4,18 +4,7 @@ $main-color: #6341a5;
 $hilight1: #e1daed;
 $hilight2: #d6c9ed;
 
-
-
-
-
-body {
-  justify-content: center;
-  background: $main-color;
-  color: $text-color;
-  display: flex;
-  font-family: 'montserrat', sans-serif;
-
-  a {
+a {
     border-bottom: 2px solid transparent;
     color: $main-color;
     cursor: pointer;
@@ -33,6 +22,16 @@ body {
     border-color: $main-color;
     width: 3em;
   }
+
+
+
+body {
+  justify-content: center;
+  background: $main-color;
+  color: $text-color;
+  display: flex;
+  font-family: 'montserrat', sans-serif;
+
 }
 
 table {

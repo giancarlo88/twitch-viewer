@@ -1,21 +1,23 @@
+a, a:hover {
+  border-bottom: 2px solid transparent;
+  color: #6341a5;
+  cursor: pointer;
+  text-decoration: none;
+  transition: .2s ease; }
+  a:hover {
+    border-bottom: 2px solid #6341a5; }
+
+img {
+  border: solid 2px;
+  border-color: #6341a5;
+  width: 3em; }
+
 body {
   justify-content: center;
   background: #6341a5;
   color: #8f91a2;
   display: flex;
   font-family: 'montserrat', sans-serif; }
-  body a, body a:hover {
-    border-bottom: 2px solid transparent;
-    color: #6341a5;
-    cursor: pointer;
-    text-decoration: none;
-    transition: .2s ease; }
-    body a:hover {
-      border-bottom: 2px solid #6341a5; }
-  body img {
-    border: solid 2px;
-    border-color: #6341a5;
-    width: 3em; }
 
 table {
   border-collapse: collapse;

@@ -30,11 +30,17 @@ var APICaller = React.createClass ({
         event.preventDefault();
         this.callApi(this.state.text)
     },
+    filterStreamers: function(){
+        this.setState({
+            onlineFilter : !this.state.onlineFilter
+        })
+    },
     getInitialState: function() {
         streamers.forEach(this.callApi)    
         return {   
         streamers: [], 
-        text: ""
+        text: "",
+        onlineFilter: false
         }
         },
     render: function() {
@@ -42,6 +48,7 @@ var APICaller = React.createClass ({
             <div >
             <Content streamers = {this.state.streamers} />
             <AddStreamerForm onChange = {this.handleChange} onSubmit = {this.handleSubmit} text = {this.state.text} />
+            <OnlineFilterButton filter = {this.state.onlineFilter} onFilter = {this.state.filterStreamers} />
             </div>
         )
     }
@@ -125,6 +132,24 @@ var AddStreamerForm = React.createClass ({
             </form>
         )
     }
+})
+
+var OnlineFilterButton = React.createClass ({
+    getInitialState: function() {
+        return {
+            onlineFilter: this.props.filter
+        }
+    },
+    filterStreamers: function (){
+        this.props.onFilter;
+    },
+    render: function() {
+        return (
+            <div>
+            <button onClick = {this.filterStreamers}> {this.state.onlineFilter ? "View All" : "Filter Online Streamers"} </button>
+            </div>
+        )
+    }   
 })
 
 

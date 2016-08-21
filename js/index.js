@@ -1,98 +1,219 @@
-
-
-
-
-var html = ""
-
 var streamers = ["freecodecamp", "storbeck", "terakilobyte", "habathcx", "brunofin", "comster44", "RobotCaleb", "thomasballinger", "beohoff", "LIRIK", "mitchflowerpower"]
-var write = function(code){
-    setTimeout(function(){$("tbody").append(code)}, 1000);
-}
 
-var getData = function (channel) {
-    $.getJSON("https://api.twitch.tv/kraken/streams?channel=" + channel, function (data) {
-        if (data._total !== 0) { //if channel is streaming
-            html += "<tr class = 'table-success'><td><a href = 'http://www.twitch.tv/'" + data.streams[0].channel.display_name + "'><img src='" + data.streams[0].channel.logo + "'></img></a></td><td><a href = 'http://www.twitch.tv/" + channel + "'>" + data.streams[0].channel.display_name + "</a></td><td>Currently Playing: " + data.streams[0].game + "</tr>"
-            
-        } else { //if channel is not streaming
-            $.getJSON("https://api.twitch.tv/kraken/users/" + channel, function (data2) {
-                    //look up the user API instead
-                    if (data2.logo !== null) { //if there is a logo in the user API, use it
-                        html += "<tr class = 'table-danger'><td><a href = 'http://www.twitch.tv/" + data2.display_name + "'><img src='" + data2.logo + "'></img></a></td><td><a href = 'http://www.twitch.tv/" + channel + "'>" + channel + "</a></td><td>Offline</tr>";
+var streamerData = []
 
-                    } else { //if there is no logo, use a placeholder instead
-
-                        html += "<tr class = 'table-danger'><td><a href = 'http://www.twitch.tv/" + channel + "'><img src='http://www.tpreview.co.uk/wp-content/uploads/2013/11/twitch-logo-300x300.png'></img></a></td><td><a href = 'http://www.twitch.tv/" + channel + "'>" + channel + "</a></td><td>Offline</td></tr>";
-                    }
-                })
-                .fail(function () { //if there is no user found
-                    html += "<tr class = 'table-danger'><td><a href = 'http://www.twitch.tv/" + channel + "'><img src='http://www.tpreview.co.uk/wp-content/uploads/2013/11/twitch-logo-300x300.png'></img></td><td>" + channel + "</td><td>User does not exist.</td></tr>"
-
-                })
-        }
-    });
-};
-
-var streamSearch = function () {
-    var html2 = "<br><br>Results (Click to add to list): <p>";
-    var srch = "";
-    var i;
-    srch = $("#searchbox").val();
-    $.getJSON("https://api.twitch.tv/kraken/search/channels?q=" + srch, function (data3) {
-        if (data3._total === 0) {
-            html2 = "Sorry! There are no matches for your search.";
-        } else {
-            for (i = 0; i < data3.channels.length; i++) {
-                html2 += "<a class='results' id = '" + data3.channels[i].display_name + "'> " + data3.channels[i].display_name + " </a>// "
-
+var APICaller = React.createClass ({
+    callApi: function(username){
+        var d1 = $.get("https://api.twitch.tv/kraken/streams/"+username)
+        var d2 = $.get("https://api.twitch.tv/kraken/users/"+username)    
+        $.when(d1, d2).done
+        (function(streamsResponse, usersResponse){
+            var streams = streamsResponse[0];
+            var users = usersResponse[0]
+            streamerData = {
+                stream: streams.stream,
+                url: "http://www.twitch.tv/"+username, //Change this
+                pic: users.logo ? users.logo : "http://www.tpreview.co.uk/wp-content/uploads/2013/11/twitch-logo-300x300.png",
+                bio: users.bio,
+                username: users.name
             }
+            var streamerArray = this.state.streamers;
+            streamerArray.push(streamerData);
+            this.setState({
+                streamers: streamerArray       
+            })
+        }.bind(this)).fail(function(){
+            streamerData = {
+                pic: "http://www.tpreview.co.uk/wp-content/uploads/2013/11/twitch-logo-300x300.png",
+                bio: "User does not exist.",
+                username: username
+            }
+             var streamerArray = this.state.streamers;
+            streamerArray.push(streamerData);
+            this.setState({
+                streamers: streamerArray
+            })
+        }.bind(this))
+        
+    },  
+    handleChange: function(event){
+        this.setState({text: event.target.value});
+    },
+    handleSubmit: function(event){
+        event.preventDefault();
+        this.callApi(this.state.text)
+    },
+    filterStreamers: function(){
+        this.setState({
+            onlineFilter : !this.state.onlineFilter
+        })
+    },
+    getInitialState: function() {
+        streamers.forEach(this.callApi)    
+        return {   
+        streamers: [], 
+        text: "",
+        onlineFilter: false
         }
-        $("#results").html(html2)
-    })
-
-
-
-}
-
-$("#button").click(streamSearch);
-
-$("body").on('click', '.results', function () {
-    var rslt= $(this).attr("id");
-    $(this).replaceWith("<span id ='" + rslt + "'class='text-muted'>Adding...</span>"); 
-    html =""
-    getData(rslt);
-    setTimeout(function(){write(html);
-                          $("#"+rslt).replaceWith("<span class ='text-muted'>Added!</span")
-                         ;}, 1000)})
-
-$("#searchbox").keypress(function (e) {
-    if (e.which === 13) {
-        e.preventDefault();
-        streamSearch();
+        },
+    render: function() {
+                return (
+            <div>
+                <div className = "footer">
+                    <OnlineFilterButton filter = {this.state.onlineFilter} onFilter = {this.filterStreamers} />
+                    <AddStreamerForm onChange = {this.handleChange} onSubmit = {this.handleSubmit} text = {this.state.text} />
+                </div>
+                <Content streamers = {this.state.streamers} filter = {this.state.onlineFilter}/>
+            </div>
+        )
     }
-});
 
-
-$("body").on("click", "#online", function () {
-    $(".table-danger").addClass("hidn");
-    $(".table-success").removeClass("hidn");
-});
-
-$("body").on("click", "#offline", function () {
-    $(".table-success").addClass("hidn");
-    $(".table-danger").removeClass("hidn");
-
-});
-
-$("body").on("click", "#all", function () {
-    $(".table-success").removeClass("hidn");
-    $(".table-danger").removeClass("hidn");
+})
+var Content = React.createClass({
+    getInitialState: function () {
+        return {
+            text: "",
+            streamers: this.props.streamers,
+            filter: this.props.filter
+            }
+    },
+    componentWillReceiveProps: function(nextProps){
+        this.setState({
+            streamers: nextProps.streamers,
+            filter: nextProps.filter
+        })
+    },  
+    render: function(){
+        return (
+            
+            <StreamList data = {this.state.streamers} filter = {this.state.filter}/>
+        )
+    }
 })
 
-$("document").ready(function () {
-    for (var j = 0; j < streamers.length; j++) {
-        getData(streamers[j])};
-        setTimeout(function(){$("#loading").addClass("hidn");
-        write(html)}, 3000);
-        $("#srch").removeClass("hidn");
-    })
+var StreamList = React.createClass ({
+    getInitialState: function(){
+        return{ 
+           data: this.props.data,
+           filter: this.props.filter
+        }   
+    },
+    componentWillReceiveProps: function(nextProps){
+        this.setState({
+            data: nextProps.data,
+            filter: nextProps.filter
+        })
+    }, 
+    componentDidMount: function() {
+        this.setState({
+            added: this.props.added
+        })
+    },
+    render: function(){
+        var filter = this.state.filter;
+        var StreamerTags = this.state.data.map(function(user, i){
+            if ((filter && user.stream) || !filter){
+            return React.createElement(Streamer, 
+                {user: user,
+                 key: i}
+            )
+            }
+        })
+
+    return (
+        <div className = "container">
+        <StreamerCards data = {StreamerTags} filter = {this.state.filter} />
+        </div>
+        )
+    }
+})
+
+var StreamerCards = React.createClass ({
+    getInitialState: function() {
+        return { 
+            filter: this.props.filter
+        }       
+    }, 
+    componentWillReceiveProps: function(nextProps){
+        this.setState({ 
+            filter: nextProps.filter
+        })
+    },
+    render: function (){
+        return (
+            <div>
+            {this.props.data}
+            </div>
+        )
+    }})
+
+
+var AddStreamerForm = React.createClass ({
+    getInitialState: function() {
+        return {
+            text: this.props.text
+        }
+    },
+    render: function(){
+        return (
+            
+            <form className = "addForm" onChange = {this.props.onChange} onSubmit = {this.props.onSubmit} >
+            <input type = "text" placeholder = "Search" />
+            <input type = "submit" value = "Go!" />
+            </form>
+        )
+    }
+})
+
+var OnlineFilterButton = React.createClass ({
+    getInitialState: function() {
+        return {
+            onlineFilter: this.props.filter
+        }
+    },
+    filterStreamers: function (){
+        this.props.onFilter;
+    },
+    render: function() {
+        return (
+            <div>
+            <button className = "filter-button" onClick = {this.props.onFilter}> {this.props.filter ? "View All" : "Filter Online Streamers"} </button>
+            </div>
+        )
+    }   
+})
+
+
+var Streamer = React.createClass ({
+    getInitialState: function() {
+        return {
+            filter: this.props.filter,
+            username: this.props.user.username,
+            url: this.props.user.url,
+            pic: this.props.user.pic, 
+            stream: this.props.user.stream ? this.props.user.stream.game  : (this.props.user.url ? "Not online" : ""),
+            bio: this.props.user.bio
+    }
+    },
+    render: function(){
+        return(
+            <div className = "media-object">
+                <div className = "image-container"><img src = {this.state.pic}/></div>
+                <div className = "text"><a href =  {this.state.url}>{this.state.username}</a>
+                    <div>
+            <p>{this.state.bio}</p>
+            <p>{this.state.stream}</p>
+                        <div className = "clear"></div>
+                    </div> 
+                </div>
+            </div>
+            )
+    }
+}
+)
+
+ReactDOM.render( 
+    <APICaller />,
+document.getElementById("content")
+);
+
